@@ -68,18 +68,31 @@ class Vocabulary:
         word2idx = {}
         idx2word = {}
         freq = {}
-        index = 0
         
+        # Count tokens
         for s in corpus:
             for token in self.tokenize(s):
-                if token not in word2idx.keys():
-                    word2idx[token] = index
-                    idx2word[index] = token
+                if token not in freq.keys():
                     freq[token] = 1
-                    index += 1
                 else:
                     freq[token] += 1
                     
+        # Cutoff the tail
+        cutoff = 50
+        sorted_freq = sorted(freq.items(), key=lambda x: x[1], reverse=True)
+        
+        word2idx["UNK"] = 0
+        idx2word[0] = "UNK"
+        id = 1   # Preserve 0 for UNK
+        for (token,cnt) in sorted_freq:
+            if cnt > 50:
+                word2idx[token] = id
+                idx2word[id] = token
+                id += 1
+            else:
+                break
+            
+        
         return word2idx, idx2word, freq
     
     ###########################
@@ -105,13 +118,14 @@ class Vocabulary:
         occ_sum = sum(most_freq)
         cfc = [0]
         for i in range(len(most_freq)):
-            if cutoff_idx == -1 and most_freq[i] < 50:
+            if cutoff_idx == -1 and most_freq[i] < cutoff:
                 cutoff_idx = i - 1
                 
             cfc.append((cfc[-1] + most_freq[i] / occ_sum))
         
         ax1.plot(list(range(len(most_freq))), most_freq)
         ax1.axhline(y=cutoff, color='r')
+        ax1.text(0.8*len(most_freq), cutoff * 1.2,"freq = %d" % cutoff)
         ax1.set_yscale("log")
         ax1.set_xlabel("Token ID (sorted by frequency)")
         ax1.set_xlabel("Frequency")
@@ -120,6 +134,7 @@ class Vocabulary:
         ax2 = plt.subplot(1,2,2)
         ax2.plot(list(range(len(cfc[1:]))), cfc[1:])
         ax2.axvline(x=cutoff_idx, color='r', label=str(most_freq[cutoff_idx]))
+        ax2.text(1.2*cutoff_idx, 0.95*cfc[cutoff_idx], "%.02f" % cfc[cutoff_idx])
         plt.title("Cumulative Fraction Covered")
         plt.xlabel("Token ID (sorted by frequency)")
         plt.ylabel("Fraction of Token Occurences Covered")
