@@ -135,6 +135,9 @@ PMI values can go from negative infinity to positive infinity. If two tokens hav
 Implement the compute\_cooccurrence\_matrix function in build\_freq\_vectors.py which takes a list of article overviews and a vocabulary and produces a co-occurrence matrix C. It is up to the student to define what a context is. Note that looping in Python is quite slow such that unoptimized versions of this function can take quite a long time. Feel free to save the result while you are developing to reduce time in future runs (see numpy.save/numpy.load). In your writeup for this task, describe how you defined your context.
 \end{task}
 
+1. Context? \newline
+2. 
+
 %==============================================================================%
 \begin{task}{2.3} 
 Implement the compute\_ppmi\_matrix function in build\_freq\_vectors.py which calls 
@@ -143,9 +146,43 @@ compute\_cooccurrence\_matrix and then computes a PPMI matrix given a list of ar
 \end{task}
 
 %==============================================================================%
+\newpage
 \begin{task}{2.4} 
 It has all led up to this! Run build\_freq\_vectors.py and examine the visualized word vectors. You should have semantically meaningful clusters in your plot. Zoom in and identify three such clusters. In your write-up, include an image of each cluster and what category you think it is representing. Also include the plot as a whole.
 \end{task}
+
+PPMI seems to effectively draw the association between words. Figure \ref{fig:q2-country-cluster} shows a cluster of countries and georaphical locations such "US", "India", "Britain", and "China". Figure \ref{fig:q2-american-football} shows a cluster of words that are highly related to American football. More interestingly, figure \ref{fig:q2-middle-east} shows that the Middle East countries and cities often co-occur with war-related words such as "killing", "bomb", "hostage", and "violence". This seems to be the public image of the Middle East represented by the media.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{whole_plot.png} \par
+    \caption{Whole plot}
+    \label{fig:q2-overview}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{country.png} \par
+    \caption{Country cluster}
+    \label{fig:q2-country-cluster}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{american_football.png} \par
+    \caption{American football cluster}
+    \label{fig:q2-american-football}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{middleeast_war.png} \par
+    \caption{Middle East war cluster}
+    \label{fig:q2-middle-east}
+\end{figure}
 
 %==============================================================================%
 \newpage

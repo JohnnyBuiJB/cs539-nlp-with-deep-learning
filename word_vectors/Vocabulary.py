@@ -13,6 +13,9 @@ class Vocabulary:
         self.word2idx, self.idx2word, self.freq = self.build_vocab(corpus)
         self.size = len(self.word2idx)
 
+    def __len__(self):
+        return len(self.word2idx.keys())
+    
     def most_common(self, k):
         freq = sorted(self.freq.items(), key=lambda x: x[1], reverse=True)
         return [t for t,f in freq[:k]]
