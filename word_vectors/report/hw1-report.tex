@@ -189,17 +189,37 @@ PPMI seems to effectively draw the association between words. Figure \ref{fig:q2
 \begin{task}{3.1}
 Derive the gradient of the objective $J_B$ with respect to the model parameters $w_i, \widetilde{w}_j, b_i, \widetilde{b}_j$. That is, write the expression for $\triangledown_{w_i}J, \triangledown_{\widetilde{w}_j}J, \triangledown_{b_i}J, \triangledown_{\widetilde{b}_j}J$. Note that parameters corresponding to words not in B will have zero gradient.
 \end{task}
+$$\nabla_{w_i}J = \sum_{(i_m,j_m) \in B} 2 f(C_{i_mj_m})(w_{i_m}^T\widetilde{w}_{j_m} + b_{i_m} + \widetilde{b}_{j_m} - logC_{i_mj_m})\widetilde{w}_{j_m}$$
+
+$$\nabla_{\widetilde{w}_j}J = \sum_{(i_m,j_m) \in B} 2 f(C_{i_mj_m})(w_{i_m}^T\widetilde{w}_{j_m} + b_{i_m} + \widetilde{b}_{j_m} - logC_{i_mj_m})w_{i_m}$$
+
+$$\nabla_{b_i}J = \sum_{(i_m,j_m) \in B} 2 f(C_{i_mj_m})(w_{i_m}^T\widetilde{w}_{j_m} + b_{i_m} + \widetilde{b}_{j_m} - logC_{i_mj_m})$$
+
+$$\nabla_{\widetilde{b}_j}J = \sum_{(i_m,j_m) \in B} 2 f(C_{i_mj_m})(w_{i_m}^T\widetilde{w}_{j_m} + b_{i_m} + \widetilde{b}_{j_m} - logC_{i_mj_m})$$
 
 %==============================================================================%
 \begin{task}{3.2} 
 Implement the gradient computation for a batch in the corresponding Task 3.2 section of build\_glove\_vectors.py.
 \end{task}
 
+\small{
+\begin{lstlisting}[language=Python]
+    c_biases_grad = w_biases_grad = np.multiply(np.multiply(fval, 2), error)
+    wordvecs_grad = np.multiply(wordbiases_grad, c_batch)
+    contextvecs_grad = np.multiply(contextbiases_grad, w_batch)
+\end{lstlisting}
+}
+
 %==============================================================================%
 \begin{task}{3.3} 
 Run build\_glove\_vectors.py to learn GloVe vectors and visualize them with TSNE! In your write-up, describe how the loss behaved during training (how stably it decreased, what it converged to, etc). Also include the TSNE plot. If everything has been done correctly, you should observe similar clustering behavior as in Task 2.3.
 \end{task}
 
+Tried tuning with combinations of three hyperparameters, B,d,lr. 
+
+64\_0.08 seems to be the best combination, converged to 0.028 after 40 epochs. 
+
+losses monotonically decrease after each epoch, but they oscillate between iterations within one epoch, which is expected for stochastic gradient descent?.
 %==============================================================================%
 \newpage
 \begin{task}{4.1} 

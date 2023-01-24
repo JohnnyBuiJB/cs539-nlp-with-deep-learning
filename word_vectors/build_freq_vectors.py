@@ -41,7 +41,7 @@ def compute_cooccurrence_matrix(corpus, vocab):
 
         """ 
     n = len(vocab)
-    coor_matrix = np.eye(n,n)
+    coor_matrix = np.zeros(n,n)
     context_len = 2
     n_context = 0
     for text in corpus:
@@ -159,5 +159,5 @@ def plot_word_vectors_tsne(word_vectors, vocab):
     plt.show()
 
 
-main_freq()
+# main_freq()
 # dataset
