@@ -159,5 +159,5 @@ def plot_word_vectors_tsne(word_vectors, vocab):
     plt.show()
 
 
-# main_freq()
-# dataset
+if __name__ == "__main__":
+    main_freq()
