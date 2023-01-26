@@ -214,15 +214,51 @@ Implement the gradient computation for a batch in the corresponding Task 3.2 sec
 }
 
 %==============================================================================%
+\newpage
 \begin{task}{3.3} 
 Run build\_glove\_vectors.py to learn GloVe vectors and visualize them with TSNE! In your write-up, describe how the loss behaved during training (how stably it decreased, what it converged to, etc). Also include the TSNE plot. If everything has been done correctly, you should observe similar clustering behavior as in Task 2.3.
 \end{task}
 
-Tried tuning with combinations of three hyperparameters, B,d,lr. 
+The model was trained with combinations of various values of batch size, dimensionality, and learning rate in 40 epochs. As can be seen in Figure \ref{fig:q3-hyperparameters-b1024} and \ref{fig:q3-hyperparameters-b2048}, the average loss monotonically decreased after each epoch for all of the combinations. The losses droped significantly at the first 2 epochs, then gradually decreased until plateauing at around 0.03. Training with batch size of 2048, dimensionality of 64, and learning rate of 0.08 yielded the best performance, reaching the loss of approximately 0.028 after 40 epochs.
 
-64\_0.08 seems to be the best combination, converged to 0.028 after 40 epochs. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{glove_tuning_1024.png} \par
+    \caption{Hyperparameters tuning with batch size of 1024}
+    \label{fig:q3-hyperparameters-b1024}
+\end{figure}
 
-losses monotonically decrease after each epoch, but they oscillate between iterations within one epoch, which is expected for stochastic gradient descent?.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{glove_tuning_2048.png} \par
+    \caption{Hyperparameters tuning with batch size of 2048}
+    \label{fig:q3-hyperparameters-b2048}
+\end{figure}
+
+\newpage
+
+Figure \ref{fig:q3-tsne-overview} shows TSNE plot of the best model. Similar clusters to those in task 2.4 can be observed in this plot. In particular, \ref{fig:q3-tsne-location} shows a cluster of locations and \ref{fig:q3-tsne-quantity} shows a cluster of quantities.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{glove_tsne_birdview.png} \par
+    \caption{GloVe TSNE bird's-eye view}
+    \label{fig:q3-tsne-overview}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{glove_tsne_location_cluster.png} \par
+    \caption{GloVe TSNE location cluster}
+    \label{fig:q3-tsne-location}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{glove_tsne_quantity_cluster.png} \par
+    \caption{GloVe TSNE quantity cluster}
+    \label{fig:q3-tsne-quantity}
+\end{figure}
 %==============================================================================%
 \newpage
 \begin{task}{4.1} 
