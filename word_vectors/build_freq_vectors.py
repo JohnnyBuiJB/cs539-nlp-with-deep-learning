@@ -41,7 +41,7 @@ def compute_cooccurrence_matrix(corpus, vocab):
 
         """ 
     n = len(vocab)
-    coor_matrix = np.zeros(n,n)
+    coor_matrix = np.zeros([n,n])
     context_len = 2
     n_context = 0
     for text in corpus:
