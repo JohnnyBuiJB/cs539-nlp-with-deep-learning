@@ -111,19 +111,28 @@
 Implement the tokenize function in Vocabulary.py that processes a string into an array of strings corresponding to tokens. You are free to implement any tokenization schema that eliminates punctuation. If you want to try out lemmitization, the nltk package may be helpful. In your writeup for this question, include a description of what you implemented and include an example input-output pair.
 \end{task}
 
-remove punctuation and separate words by spaces.
-
-There are still many other ways to try, like lemmatization or stemming, 
+Before tokenization, punctuations were removed and words were split with spaces as delimeters. The 0-index is reserved for unknown words "UNK". For example, passing "Bears are huge sdfsf ~~~~!!!" to tokenize() produced ['Bears', 'are', 'huge', 'sdfsf'].
 
 %==============================================================================%
 \begin{task}{1.2} 
 Implement the build\_vocab function in Vocabulary.py which constructs a finite vocabulary from a string containing all the text from the training corpus. This includes implementing some heuristic for thresholding the number of words and building the word2indx and idx2word indexes.
 \end{task}
 
+Refer to Vocabulary.py.
+
 %==============================================================================%
 \begin{task}{1.3} 
 Implement the make\_vocab\_charts function in Vocabulary.py to produce Token Frequency Distribution and Cumulative Fraction Covered charts like those above for your tokenizer and vocabulary cutoff heuristic. We recommend matplotlib for this. Afterwards, running build\_freq\_vectors.py will generate these plots. In your write-up for this question, include these plots and briefly describe the cutoff heuristic you implemented and explain your rational for setting it.
 \end{task}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{token_freq_dist.png} \par
+    \caption{Token Frequency Distribution and Cumulative Fraction Covered}
+    \label{fig:q1-token-freq-dist}
+\end{figure}
+
+The cutoff heuristic is tokens with frequency less than 50. As shown by Figure \ref{fig:q1-token-freq-dist}, the Cumulative Fraction Covered was about to plateau after the cutoff point. Hence, pushing the cutoff line down would significantly increase the computation of downstream tasks but gain little extra information. Furthermore, because representations should be evaluated by assessing the performance of downstream NLP tasks (extrinsic evaluation), it is more practical to start with small vocabulary size to accelerate the other NLP tasks to get feedback faster for further adjustment.
 
 %==============================================================================%
 \newpage

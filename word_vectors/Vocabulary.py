@@ -126,16 +126,16 @@ class Vocabulary:
                 
             cfc.append((cfc[-1] + most_freq[i] / occ_sum))
         
-        ax1.plot(list(range(len(most_freq))), most_freq)
+        ax1.plot(list(range(len(most_freq))), most_freq, color='b')
         ax1.axhline(y=cutoff, color='r')
         ax1.text(0.8*len(most_freq), cutoff * 1.2,"freq = %d" % cutoff)
         ax1.set_yscale("log")
         ax1.set_xlabel("Token ID (sorted by frequency)")
-        ax1.set_xlabel("Frequency")
+        ax1.set_ylabel("Frequency")
         ax1.set_title("Token Frequency Distribution")
 
         ax2 = plt.subplot(1,2,2)
-        ax2.plot(list(range(len(cfc[1:]))), cfc[1:])
+        ax2.plot(list(range(len(cfc[1:]))), cfc[1:], color='b')
         ax2.axvline(x=cutoff_idx, color='r', label=str(most_freq[cutoff_idx]))
         ax2.text(1.2*cutoff_idx, 0.95*cfc[cutoff_idx], "%.02f" % cfc[cutoff_idx])
         plt.title("Cumulative Fraction Covered")
