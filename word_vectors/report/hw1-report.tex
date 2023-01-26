@@ -138,8 +138,7 @@ PMI values can go from negative infinity to positive infinity. If two tokens hav
 Implement the compute\_cooccurrence\_matrix function in build\_freq\_vectors.py which takes a list of article overviews and a vocabulary and produces a co-occurrence matrix C. It is up to the student to define what a context is. Note that looping in Python is quite slow such that unoptimized versions of this function can take quite a long time. Feel free to save the result while you are developing to reduce time in future runs (see numpy.save/numpy.load). In your writeup for this task, describe how you defined your context.
 \end{task}
 
-1. Context? \newline
-2. 
+The used context was 2-windows around the word of interest. For example, in "Today is a sunny day, but yesterday was not", if the word of interest is "a", then "Today is" and "sunny day" are the context words.
 
 %==============================================================================%
 \begin{task}{2.3} 
@@ -148,6 +147,7 @@ Implement the compute\_ppmi\_matrix function in build\_freq\_vectors.py which ca
 compute\_cooccurrence\_matrix and then computes a PPMI matrix given a list of article overviews and a vocabulary. Hint: Add a small constant to C to avoid problems with log(0).
 \end{task}
 
+Refer to build\_freq\_vectors.py.
 %==============================================================================%
 \newpage
 \begin{task}{2.4} 
