@@ -62,10 +62,14 @@ def main_glove():
     B_range = [1024,2048]
     d_range = [16,32,64]
     lr_range = [0.1, 0.05, 0.08]
+    
+    best_B = [2048]
+    best_d = [64]
+    best_lr = [0.08]
 
-    for B in [1024]:
-        for d in [16]:
-            for learningRate in [0.08]:
+    for B in best_B:
+        for d in best_d:
+            for learningRate in best_lr:
                 # Initialize word vectors randomly
                 wordvecs = np.random.rand(vocab.size, d)
                 contextvecs = np.random.rand(vocab.size, d)
