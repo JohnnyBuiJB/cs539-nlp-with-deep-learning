@@ -16,6 +16,9 @@
 \usepackage{tikz}   % For graph
 
 \usepackage{float}  % To inforce inserting images at the right place
+\restylefloat{table}
+
+\usepackage[center]{caption}
 
 \usepackage{algorithm}
 \usepackage{algpseudocode}
@@ -225,21 +228,344 @@ losses monotonically decrease after each epoch, but they oscillate between itera
 \begin{task}{4.1} 
 Use the most\_similar function to find three additional analogies that work. In your response, provide the analogies in the compact a:b::c:? form, the model's list of outputs, and why you consider this output to satisfy the analogy.
 \end{task}
+Table \ref{table:q4-reasonable-analogies} shows three reasonable analogies. First, "Messi : Argentina :: Neymar : ?" returned Brazil, which is indeed the country which the famous soccer player Neymar comes from as Messi comes from Argentina. Second, football is used in the United Kingdom as soccer is used in Canada and the US. Finally, Paris is the capical of France as Beijing is that of China.
+
+\begin{table}[H]
+    \caption{reasonable analogies, Messi:Argentina::Neymar:?, football:uk::soccer:?, China:Beijing::France:?, in order from left to right}
+    \label{table:q4-reasonable-analogies}
+\hspace{50pt}
+\begin{minipage}[c]{0.25\linewidth}%
+    \scalebox{0.9}{
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{word} & \textbf{cosine}  \\
+        \hline
+        Brazil & 0.622\\
+        \hline
+        Uruguay & 0.581\\
+        \hline
+        Chile & 0.561\\
+        \hline
+        Ecuador & 0.56\\
+        \hline
+        Argentine & 0.555\\
+        \hline
+        Argentinean & 0.535\\
+        \hline
+        Paraguay & 0.525\\
+        \hline
+        Peru & 0.521\\
+        \hline
+        Argentinian & 0.505\\
+        \hline
+        striker\_Neymar & 0.503\\
+        \hline
+\end{tabular}}
+ %\captionof{figure}{29 most similar\newline words to "good"}
+\end{minipage}
+\hspace{0pt}%
+\begin{minipage}[c]{0.25\linewidth}%
+    \scalebox{0.9}{
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{word} & \textbf{cosine}  \\
+        \hline
+        canada &  0.585 \\
+        \hline
+        usa &  0.585 \\
+        \hline
+        australia &  0.525 \\
+        \hline
+        india &  0.511 \\
+        \hline
+        germany &  0.502 \\
+        \hline
+        malaysia &  0.501 \\
+        \hline
+        amsterdam &  0.5 \\
+        \hline
+        denmark &  0.496 \\
+        \hline
+        thailand &  0.488 \\
+        \hline
+        bbc &  0.483 \\
+        \hline
+\end{tabular}}
+ %\captionof{figure}{29 most similar\newline words to "good"}
+\end{minipage}
+\hspace{-18pt}%
+\begin{minipage}[c]{0.25\linewidth}%
+    \scalebox{0.9}{
+    \begin{tabular}{|c|c|}
+       \hline
+       \textbf{word} & \textbf{cosine}  \\
+       \hline
+        Paris &  0.721 \\
+        \hline
+        French &  0.624 \\
+        \hline
+        Colombes &  0.609 \\
+        \hline
+        Marseille &  0.597 \\
+        \hline
+        Melun &  0.589 \\
+        \hline
+        Aix\_en\_Provence &  0.578 \\
+        \hline
+        Issy\_les\_Moulineaux &  0.578 \\
+        \hline
+        Montpellier &  0.574 \\
+        \hline
+        Toulouse &  0.571 \\
+        \hline
+        Nantes &  0.566 \\
+        \hline
+\end{tabular}}
+\end{minipage}
+\end{table}
 
 %==============================================================================%
+\newpage
 \begin{task}{4.2} 
 Use the most\_similar function to find three analogies that did not work. In your response to this question, provide the analogies in the compact a:b::c:? form, the model's list of outputs, and why you consider this output to not satisfy the analogy.
 \end{task}
 
+Table \ref{table:q4-unreasonable-analogies} shows three reasonable analogies. First, although the analogy works out for China and France as shown in Table \ref{table:q4-reasonable-analogies}, it does not work for China and the US. Second, the model cannot relate Beyonce to the US as Adele is a famous female singer from England. Lastly, the model cannot relate CIA to the US as FIS, the Foreign Intelligence Service of the Russian Federation, is to Russia.
+
+\begin{table}[H]
+    \caption{unreasonable analogies, China:Beijing::United\_States:?, Adele:England::Beyonce:?, FIS:Russia::CIA:?, in order from left to right}
+    \label{table:q4-unreasonable-analogies}
+\hspace{0pt}
+\begin{minipage}[c]{0.25\linewidth}%
+    \scalebox{0.9}{
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{word} & \textbf{cosine}  \\
+        \hline
+        Unites\_States &  0.58 \\
+        \hline
+        U.S. &  0.569 \\
+        \hline
+        United\_Sates &  0.539 \\
+        \hline
+        Untied\_States &  0.532 \\
+        \hline
+        theUnited\_States &  0.488 \\
+        \hline
+        Washington\_DC &  0.477 \\
+        \hline
+        Washington &  0.465 \\
+        \hline
+        UnitedStates &  0.453 \\
+        \hline
+        Great\_Britain &  0.444 \\
+        \hline
+        Athens\_Greece &  0.439 \\
+        \hline
+\end{tabular}}
+ %\captionof{figure}{29 most similar\newline words to "good"}
+\end{minipage}
+\hspace{5pt}%
+\begin{minipage}[c]{0.25\linewidth}%
+    \scalebox{0.9}{
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{word} & \textbf{cosine}  \\
+        \hline
+        stock\_symbol\_BNK &  0.467 \\ 
+        \hline
+        Freddie\_Flintoff &  0.458 \\ 
+        \hline
+        ticker\_symbol\_BNK &  0.455 \\ 
+        \hline
+        DAILY\_STAR\_Fabio\_Capello &  0.446 \\ 
+        \hline
+        Wayne\_Rooney &  0.446 \\ 
+        \hline
+        David\_Beckham &  0.444 \\ 
+        \hline
+        NatWest\_Challenge &  0.437 \\ 
+        \hline
+        Beyoncé &  0.434 \\ 
+        \hline
+        Frank\_Lampard &  0.429 \\ 
+        \hline
+        midfielder\_Frank\_Lampard &  0.427 \\
+        \hline
+\end{tabular}}
+\end{minipage}
+\hspace{60pt}%
+\begin{minipage}[c]{0.25\linewidth}%
+    \scalebox{0.9}{
+    \begin{tabular}{|c|c|}
+       \hline
+       \textbf{word} & \textbf{cosine}  \\
+       \hline 
+        Kremlin &  0.506 \\ 
+        \hline 
+        former\_Soviet\_republics &  0.494 \\ 
+        \hline 
+        Moscow &  0.482 \\ 
+        \hline 
+        Soviet &  0.474 \\ 
+        \hline 
+        former\_Soviet\_Republics &  0.473 \\ 
+        \hline 
+        CIA\_operatives &  0.47 \\ 
+        \hline 
+        Russian &  0.467 \\ 
+        \hline 
+        Soviet\_Union &  0.466 \\ 
+        \hline 
+        Ukraine &  0.465 \\ 
+        \hline 
+        spy &  0.46 \\
+        \hline
+\end{tabular}}
+\end{minipage}
+\end{table}
+
 %==============================================================================%
+\newpage
 \begin{task}{4.3} 
 Use the most\_similar function to find two additional cases of bias based on gender, politics, religion, ethnicity, or nationality. In your response, provide the analogies in the compact a:b::c:? form, the model's list of outputs for both a:b::c:? and c:b::a:?, and why you consider this output to be biased based on the model's two responses.
 \end{task}
 
+Table \ref{table:q4-gender_bias} demonstrates gender bias in word2vec. In particular, when the model was asked boy:soccer::girl:?, volleyball and softball are the most similar instead of soccer. On the other hand, girl:soccer::boy:? returned soccer as the most similar word. This implies that boys are more likely to play soccer than girls.
+
+\begin{table}[H]
+    \caption{bias based on gender in word2vec. The left table shows the most similar to boy:soccer::girl:? and the right table shows the most similar words to girl:soccer::boy:?}
+    \label{table:q4-gender_bias}
+\hspace{120pt}
+\begin{minipage}[c]{0.25\linewidth}%
+    \scalebox{0.9}{
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{word} & \textbf{cosine}  \\
+        \hline
+        volleyball &  0.694 \\ 
+        \hline
+        softball &  0.668 \\ 
+        \hline
+        Soccer &  0.649 \\ 
+        \hline
+        basketball &  0.632 \\ 
+        \hline
+        lacrosse &  0.618 \\ 
+        \hline
+        water\_polo &  0.596 \\ 
+        \hline
+        football &  0.596 \\ 
+        \hline
+        Volleyball &  0.589 \\ 
+        \hline
+        tennis &  0.585 \\ 
+        \hline
+        hockey &  0.564 \\
+        \hline
+\end{tabular}}
+\end{minipage}
+\hspace{5pt}%
+\begin{minipage}[c]{0.25\linewidth}%
+    \scalebox{0.9}{
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{word} & \textbf{cosine}  \\
+        \hline
+        Soccer &  0.692 \\ 
+        \hline
+        football &  0.692 \\ 
+        \hline
+        basketball &  0.566 \\ 
+        \hline
+        fooball &  0.545 \\ 
+        \hline
+        sports &  0.542 \\ 
+        \hline
+        baseball &  0.542 \\ 
+        \hline
+        futbol &  0.542 \\ 
+        \hline
+        hockey &  0.54 \\ 
+        \hline
+        SOCCER &  0.532 \\ 
+        \hline
+        Futsal &  0.518 \\
+        \hline
+\end{tabular}}
+\end{minipage}
+\end{table}
+
+Researchers found that there are association between names and races. For example, Gabe has 86\% probability of being a White person's name, whereas 70\% percent of people named Miguel are Hispanic \cite{BiasInEmbedding}. More interestingly, word2vec shows that Miguel is much more similar to smugglers than Gabe is. Particularly, as shown by Table \ref{table:q4-race_bias}, Miguel:smuggler::Gabe:? returned smugglers with 0.486 cosine similarity, while Gabe:smuggler::Miguel:? produced smugglers with much higher similarity, at 0.596. This implies that a Hispanic is more associated with smugglers than a White person.
+
+\begin{table}[H]
+    \caption[justification=centering]{bias based on race in word2vec. The left table shows the most similar to Miguel:smuggler::Gabe:? and the right table shows the most similar words to Gabe:smuggler::Miguel:?}
+    \label{table:q4-race_bias}
+\hspace{90pt}
+\begin{minipage}[c]{0.25\linewidth}%
+    \scalebox{0.9}{
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{word} & \textbf{cosine}  \\
+        \hline
+        smugglers &  0.486 \\ 
+        \hline
+        smuggling &  0.449 \\ 
+        \hline
+        Smugglers &  0.406 \\ 
+        \hline
+        smuggled &  0.397 \\ 
+        \hline
+        Rabiyah &  0.387 \\ 
+        \hline
+        trafficker &  0.386 \\ 
+        \hline
+        smuggle &  0.385 \\ 
+        \hline
+        drug\_smuggler &  0.378 \\ 
+        \hline
+        Zach &  0.375 \\ 
+        \hline
+        informant &  0.373 \\
+        \hline
+\end{tabular}}
+\end{minipage}
+\hspace{5pt}%
+\begin{minipage}[c]{0.25\linewidth}%
+    \scalebox{0.9}{
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{word} & \textbf{cosine}  \\
+        \hline
+        smugglers &  0.596 \\ 
+        \hline
+        migrant\_smuggler &  0.542 \\ 
+        \hline
+        trafficker &  0.54 \\ 
+        \hline
+        smuggling &  0.529 \\ 
+        \hline
+        traffickers &  0.507 \\ 
+        \hline
+        drug\_trafficker &  0.505 \\ 
+        \hline
+        Colombian\_traffickers &  0.504 \\ 
+        \hline
+        Juárez\_Cartel &  0.501 \\ 
+        \hline
+        immigrant\_smuggler &  0.494 \\ 
+        \hline
+        border\_crosser &  0.483 \\
+        \hline
+\end{tabular}}
+\end{minipage}
+\end{table}
 %==============================================================================%
 \begin{task}{4.4} 
 Why might these biases exist in word2vec and what are some potential consequences that might result if word2vec were used in a live system?
 \end{task}
+
+Word2vec contains biases because it captures hidden stereotypes present in the society. In case of "word2vec-google-news-300", it is professional journalists' negative beliefs towards gender and race that were quantified by the model \cite{DebiasingWordEmbeddings}. Word embeddings have become the defacto standard method to represent text data in many NLP tasks. Therefore, latent biases contained in these models could be learned by NLP models, which might pose a risk of reinforcing stereotypes in society.
 
 \bibliographystyle{alpha}
 \bibliography{mybib}
