@@ -1,0 +1,136 @@
+\usepackage{xcolor}
+\usepackage{soul}
+
+\def\chpcolor{blue!60}
+\def\chpcolortxt{blue!60}
+\def\sectionfont{\sffamily\Large}
+
+\setcounter{secnumdepth}{2}
+
+\makeatletter
+%Section:
+\def\@sectionstrut{\vrule\@width\z@\@height12.5\p@}
+\def\@makesectionhead#1{%
+  {\par\vspace{20pt}%
+   \parindent 0pt\raggedleft\sectionfont
+   \colorbox{\chpcolor}{%
+     \parbox[t]{25pt}{\color{white}\@sectionstrut\@depth4.5\p@\hfill
+       \ifnum\c@secnumdepth>\z@\thesection\fi}%
+   }%
+   \begin{minipage}[t]{\dimexpr\textwidth-25pt-2\fboxsep\relax}
+   \color{\chpcolortxt}\@sectionstrut\hspace{5pt}#1
+   \end{minipage}\par
+   \vspace{10pt}%
+  }
+}
+\def\section{\@afterindentfalse\secdef\@section\@ssection}
+\def\@section[#1]#2{%
+  \ifnum\c@secnumdepth>\m@ne
+    \refstepcounter{section}%
+    \addcontentsline{toc}{section}{\protect\numberline{\thesection}\textbf{#1}}%
+  \else
+    \phantomsection
+    \addcontentsline{toc}{section}{#1}%
+  \fi
+  \sectionmark{\textbf{#1}}%
+  \if@twocolumn
+    \@topnewpage[\@makesectionhead{#2}]%
+  \else
+    \@makesectionhead{\textbf{#2}}\@afterheading
+  \fi
+}
+\def\@ssection#1{%
+  \if@twocolumn
+    \@topnewpage[\@makesectionhead{#1}]%
+  \else
+    \@makesectionhead{#1}\@afterheading
+  \fi
+}
+\makeatother
+
+
+
+
+\makeatletter
+\def\@makesubsectionhead#1{%
+  {\par\vspace{20pt}%
+   \parindent 0pt\raggedleft\sffamily\large
+   \ifnum\c@secnumdepth>\z@\color{\chpcolortxt}{\thesubsection}\fi%
+   %
+   \begin{minipage}[t]{\dimexpr\textwidth-2\fboxsep\relax}
+   \vspace{-10pt}\color{black}\hspace{5pt}#1
+   \end{minipage}\\[-10pt]
+   \noindent\rule{\textwidth}{1pt}\par
+   \vspace{10pt}%
+  }
+}
+\def\subsection{\@afterindentfalse\secdef\@subsection\@ssection}
+\def\@subsection[#1]#2{%
+  \ifnum\c@secnumdepth>\m@ne
+    \refstepcounter{subsection}%
+    \addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}\textbf{#1}}%
+  \else
+    \phantomsection
+    \addcontentsline{toc}{subsection}{\textbf{#1}}%
+  \fi
+  \sectionmark{\textbf{#1}}%
+  \if@twocolumn
+    \@topnewpage[\@makesubsectionhead{\textbf{#2}}]%
+  \else
+    \@makesubsectionhead{\textbf{#2}}\@afterheading
+  \fi
+}
+\def\@ssection#1{%
+  \if@twocolumn
+    \@topnewpage[\@makesubsectionhead{\textbf{#1}}]%
+  \else
+    \@makesubsectionhead{\textbf{#1}}\@afterheading
+  \fi
+}
+\makeatother
+
+
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+%Code listing style named "mystyle"
+\lstdefinestyle{mystyle}{
+  backgroundcolor=\color{backcolour},   commentstyle=\color{codegreen},
+  keywordstyle=\color{magenta},
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{codepurple},
+  basicstyle=\ttfamily\footnotesize,
+  breakatwhitespace=false,         
+  breaklines=true,                 
+  captionpos=b,                    
+  keepspaces=true,                 
+  numbers=left,                    
+  numbersep=5pt,                  
+  showspaces=false,                
+  showstringspaces=false,
+  showtabs=true,                  
+  tabsize=2
+}
+
+%"mystyle" code listing set
+\lstset{style=mystyle}
+
+
+\newcommand{\xhdr}[1]{\vspace{5pt}\noindent{\color{blue!60}\textbf{#1}}}
+
+
+\newcommand{\task}[1]{\xhdr{ {\large $\mathbf{\blacktriangleright}$} \texttt{TASK #1}}}
+
+
+\usepackage{tcolorbox}
+\newtcolorbox{taskbox}{
+    arc=0pt,
+    boxrule=1pt,
+    colback=gray!10,
+    colframe=blue!60,
+    width=\textwidth,
+    halign=left,
+}
