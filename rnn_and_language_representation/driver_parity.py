@@ -28,7 +28,8 @@ random.seed(42)
 torch.manual_seed(42)
 
 # Determine if a GPU is available for use, define as global variable
-dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+dev = torch.device("mps") if torch.cuda.is_available() else torch.device("cpu")
+# dev = torch.device("mps") if torch.has_mps else torch.device("cpu")
 
  
 # Main Driver Loop
@@ -47,8 +48,8 @@ def main():
     train_model(model, train_loader)
 
 
-    logging.info("Running generalization experiment")
-    runParityExperiment(model,maximum_training_sequence_length)
+    # logging.info("Running generalization experiment")
+    # runParityExperiment(model,maximum_training_sequence_length)
 
 
 
@@ -58,6 +59,25 @@ def main():
 ######################################################################
 
 # Implement a LSTM model for the parity task. 
+class SimpleClassifier(torch.nn.Module):
+    def __init__(self, insize, outsize, hidden=128):
+        super().__init__()
+        self.linear = nn.Linear(insize, 128)
+        self.linear2 = nn.Linear(128,outsize)
+        self.apply(self._init_weights)
+
+    def _init_weights(self, module):
+        if isinstance(module, nn.Linear):
+            nn.init.kaiming_normal_(module.weight)
+            if module.bias is not None:
+                torch.nn.init.constant_(module.bias, 0.5)
+
+    def forward(self, x):
+        out = F.relu(self.linear(x))
+        out = F.dropout(out,0.5)
+        out = self.linear2(out)
+        out = torch.sigmoid(out)
+        return out
 
 class ParityLSTM(torch.nn.Module) :
 
@@ -66,7 +86,10 @@ class ParityLSTM(torch.nn.Module) :
 
     def __init__(self, hidden_dim=64) :
         super().__init__()
+        self.hidden_dim = hidden_dim
 
+        self.lstm = nn.LSTM(input_size=1, hidden_size=hidden_dim, batch_first=True)
+        self.classifier = SimpleClassifier(hidden_dim, 2)
     
     # forward runs the model on an B x max_length x 1 tensor and outputs a B x 2 tensor representing a score for 
     # even/odd parity for each element of th ebatch
@@ -81,6 +104,16 @@ class ParityLSTM(torch.nn.Module) :
     #   out -- a batch_size x 2 tensor of scores for even/odd parity    
 
     def forward(self, x, s):
+        N = len(s)
+        max_len = max(s)
+        
+        # s = torch.Tensor(s)
+        
+        x_pack = pack_padded_sequence(x.view(N, max_len, 1), s, batch_first=True, enforce_sorted=False)
+        
+        out, (hn, cn) = self.lstm(x_pack)
+        out = self.classifier(hn[-1]).view(N, 2)
+        
         return out
 
     def __str__(self):
@@ -147,12 +180,12 @@ def pad_collate(batch):
       x_lens = [len(x) for x in xx]
 
       xx_pad = pad_sequence(xx, batch_first=True, padding_value=0)
-      yy = torch.LongTensor(yy)
+      yy = torch.tensor(yy).long()
 
       return xx_pad, yy, x_lens
 
 # Basic training loop for cross entropy loss
-def train_model(model, train_loader, epochs=2000, lr=0.003):
+def train_model(model, train_loader, epochs=2000, lr=0.001):
     # Define a cross entropy loss function
     crit = torch.nn.CrossEntropyLoss()
 
@@ -177,21 +210,23 @@ def train_model(model, train_loader, epochs=2000, lr=0.003):
 
             # push them to the GPU if we are using one
             x = x.to(dev)
-            y = y.to(dev)
+            y = y.to(dev)   # [N]
 
+            # zero out gradients
+            optimizer.zero_grad()
+            
             # predict the parity from our model
-            y_pred = model(x, l)
+            y_pred_prob = model(x, l)    # [N,2]
             
             # compute the loss with respect to the true labels
-            loss = crit(y_pred, y)
+            loss = crit(y_pred_prob, y)
             
-            # zero out the gradients, perform the backward pass, and update
-            optimizer.zero_grad()
+            # backward and optimize
             loss.backward()
             optimizer.step()
 
             # compute loss and accuracy to report epoch level statitics
-            pred = torch.max(y_pred, 1)[1]
+            pred = torch.max(y_pred_prob, 1)[1] # Get max_indices
             correct += (pred == y).float().sum()
             sum_loss += loss.item()*y.shape[0]
             total += y.shape[0]
