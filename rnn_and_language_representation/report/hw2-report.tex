@@ -20,6 +20,9 @@
 
 \usepackage[center]{caption}
 
+\usepackage{caption}
+\usepackage{subcaption}
+
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
@@ -123,15 +126,130 @@ Implement the \texttt{ParityLSTM} class in \texttt{driver\_parity.py}. Your mode
 \emph{Hint: Efficiently processing batches with variable input lengths requires some bookkeeping or else the LSTM will continue to process the padding for shorter sequences along with the content of longer ones. See pack\_padded\_sequence and pad\_packed\_sequence documentation in PyTorch.}
 \end{task}
 
+The model takes one input feature at a time, including one layer of LSTM with 64 hidden units. The final states of these units are fed to a 2 back-to-back Linear layers with the shape of $128 \times 128$ and $128 \times 2$, respectively. Their outputs then go to a sigmoid function to generate probabilities for even and odd parity.
+
+Various learning rates were examined and the best learning rate appeared to be 0.0005. The model's training process is depicted by the Figure \ref{fig:lstm128-training}. It took around 18000 epochs to drive the train accuracy up to 1.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{LSTM-128_parity_train_accuracy.png} \par
+    \caption{train accuracy}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{LSTM-128_parity_train_loss.png} \par
+    \caption{train loss}
+\end{subfigure}
+\caption{LSTM-128 training with the learning rate of 0.0005}
+\label{fig:lstm128-training}
+\end{figure}
+
 %==============================================================================%
+\newpage
 \begin{task}{2.2} 
 \texttt{driver\_parity.py} also evaluates your trained model on binary sequences of length 0 to 20 and saves a corresponding plot of accuracy vs.~length. Include this plot in your write-up and describe the trend you observe. Why might the model behave this way?
 \end{task}
+
+The model validation accuracy is shown in Figure \ref{fig:lstm128-generalization}. The model seemed to perform very well with strings of length less than or equal to 5. However, its performance started to degrade significantly with longer sequences until reaching the same accuracy as random guess with sequences longer than 13. The perfect accuracies for short sequences and the fact that we only trained the model with such sequences might imply over-fitting. One possible reason might be that the training data did not represent the population. Another reason might be the high complexity of the model.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{LSTM-64_parity_generalization.png} \par
+    \caption{LSTM-128 parity generalization}
+    \label{fig:lstm128-generalization}
+\end{figure}
 
 %==============================================================================%
 \begin{task}{2.3} 
 We know from 1.1 that even a univariate LSTM (one with a scalar hidden state) can theoretically solve this problem. Run a few (3-4) experiments with different hidden state sizes, what is the smallest size for which you can still train to fit this dataset? Feel free to adjust any of the hyper-parameters in the optimization in the \texttt{train\_model} function if you want. Describe any trends you saw in training or the generalization experiment as you reduced the model capacity.
 \end{task}
+
+Models with hidden dimension of 64, 16, 4, and 2 were experimented with training for as many as 80000 epochs at the learning rate of 0.0005, as shown in the Figure \ref{fig:lstm64-training}, \ref{fig:lstm16-training}, \ref{fig:lstm4-training}, and \ref{fig:lstm2-80000-training}. Unlike theory suggests, the smallest size LSTM that can fit the data set seemed to be 4. 
+
+The model with 2 hidden units seemed not to improve much after reaching 0.98 training accuracy. However, Figure \ref{fig:lstm2-training} shows that it took about 60000 epochs before a surge in accuracy occurs, which implies that the model has the potential to improve if it is given more training. Another 2-hidden-unit model was trained with 200000 epochs. As demonstrated by figure ,The result did not change much compared to the one trained with 80000 epochs.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{LSTM-64_parity_train_accuracy.png} \par
+    \caption{train accuracy}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{LSTM-64_parity_train_loss.png} \par
+    \caption{train loss}
+\end{subfigure}
+\caption{LSTM-64 training with the learning rate of 0.0005}
+\label{fig:lstm64-training}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{LSTM-16_parity_train_accuracy.png} \par
+    \caption{train accuracy}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{LSTM-16_parity_train_loss.png} \par
+    \caption{train loss}
+\end{subfigure}
+\caption{LSTM-16 training with the learning rate of 0.0005}
+\label{fig:lstm16-training}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{LSTM-4_parity_train_accuracy.png} \par
+    \caption{train accuracy}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{LSTM-4_parity_train_loss.png} \par
+    \caption{train loss}
+\end{subfigure}
+\caption{LSTM-4 training with the learning rate of 0.0005}
+\label{fig:lstm4-training}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{LSTM-2-80000_parity_train_accuracy.png} \par
+    \caption{train accuracy}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{LSTM-2-80000_parity_train_loss.png} \par
+    \caption{train loss}
+\end{subfigure}
+\caption{LSTM-2 training with 80000 epochs}
+\label{fig:lstm2-80000-training}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{LSTM-2-200000_parity_train_accuracy.png} \par
+    \caption{train accuracy}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{LSTM-2-200000_parity_train_loss.png} \par
+    \caption{train loss}
+\end{subfigure}
+\caption{LSTM-2 training with 200000 epochs}
+\label{fig:lstm2-200000-training}
+\end{figure}
+
 
 %==============================================================================%
 \begin{task}{2.4} 
