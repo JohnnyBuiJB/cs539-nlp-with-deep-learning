@@ -290,7 +290,30 @@ To achieve stronger performance, you will likely need to tune hyper-parameters o
 Once you are done finetuning, evaluate on the test split of the data and report the per-word accuracy. 
 \end{task}
 
+For tokenization, 100-dimensional GloVe Pretrained on Wikipedia and Gigaword, GloVe6B-100d, was used to transform words to 100-dimensional vectors. The model architecture includes a bidirectional LSTM and a linear layer. The BiLSTM has a 100-dimensional input layer and two 256-dimensional hidden layers. The linear layer takes 256 outputs from the biLSTM as input and produce as many outputs as the number of tags. Importantly, a quarter of the input tensor of the BiLSTM and the linear layer were dropped out to avoid overfitting.
+
+Figure \ref{fig:biLSTM-training} shows the model training and validation loss and accuracy. It can be seen in Figure \ref{fig:biLSTM-training-accuracy} that the train accuracy was reaching 100\%, whereas validation accuracy reached its limit at 88\% after 13 epochs of training. The model was tested on the test split and got 88\% accuracy, as good as validation accuracy.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{pos-tag-lstm-loss.png} \par
+    \caption{loss}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.6]{pos-tag-lstm-acc.png} \par
+    \caption{accuracy}
+    \label{fig:biLSTM-training-accuracy}
+\end{subfigure}
+\caption{BiLSTM training loss and accuracy over epochs}
+\label{fig:biLSTM-training}
+\end{figure}
+
+
 %==============================================================================%
+\newpage
 \begin{task}{3.3} 
 Implement a function \texttt{tag\_sentence(sentence, model)} that processes an input sentence (a string) into a sequence of POS tokens. This will require you to tokenize/numeralize the sentence, pass it through your network, and then print the result. Use this function to tag the following sentences:\\[5pt]
 
@@ -300,6 +323,15 @@ The complex houses married and single soldiers and their families.
 
 The man who hunts ducks out on weekends.    
 \end{task}
+
+Figure \ref{fig:tag-sentence} demontrates some results from the models. For the first sentence, the model could not recognize "man" as a verb, but it performed quite well on the second sentence. For the third sentence, the model seemed confused about whether "houses" or "married" is the main verb of then sentence.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{tag-sentence.png} \par
+    \caption{Tag sentence}
+    \label{fig:tag-sentence}
+\end{figure}
 
 \bibliographystyle{alpha}
 \bibliography{mybib}
