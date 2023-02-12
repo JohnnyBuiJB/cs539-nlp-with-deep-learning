@@ -60,27 +60,12 @@ class BiLSTMPOSTagger(nn.Module):
         self.dropout = nn.Dropout(dropout)
         
     def forward(self, text):
-
-        #text = [sent len, batch size]
-        
-        #pass text through embedding layer
+        # Tokenize
         embedded = self.dropout(self.embedding(text))
         
-        #embedded = [sent len, batch size, emb dim]
-        
-        #pass embeddings into LSTM
+        # Pass embeddings through LSTM and classifier
         outputs, (hidden, cell) = self.lstm(embedded)
-        
-        #outputs holds the backward and forward hidden states in the final layer
-        #hidden and cell are the backward and forward hidden and cell states at the final time-step
-        
-        #output = [sent len, batch size, hid dim * n directions]
-        #hidden/cell = [n layers * n directions, batch size, hid dim]
-        
-        #we use our outputs to make a prediction of what the tag should be
         predictions = self.classifier(self.dropout(outputs))
-        
-        #predictions = [sent len, batch size, output dim]
         
         return predictions
 
@@ -92,7 +77,7 @@ def init_weights(m):
 def per_word_accuracy(preds, y, tag_pad_idx):
     # Get the indices of the max probability
     max_preds = preds.argmax(dim = 1, keepdim = True)
-    non_pad_elements = (y != tag_pad_idx).nonzero()
+    non_pad_elements = torch.nonzero((y != tag_pad_idx))
     correct = max_preds[non_pad_elements].squeeze(1).eq(y[non_pad_elements])
     
     return correct.sum() / torch.FloatTensor([y[non_pad_elements].shape[0]]).to(dev)
@@ -245,23 +230,23 @@ def main():
     model = model.to(dev)
     criterion = criterion.to(dev)
     
-    n_epochs = 20
-    best_valid_loss = float('inf')
+    n_epochs = 3
+    best_val_loss = float('inf')
     for epoch in range(n_epochs):
         train_loss, train_acc = train(model, train_iterator, optimizer, criterion, tag_pad_idx)
-        valid_loss, valid_acc = evaluate(model, valid_iterator, criterion, tag_pad_idx)
+        val_loss, valid_acc = evaluate(model, valid_iterator, criterion, tag_pad_idx)
         
-        if valid_loss < best_valid_loss:
-            best_valid_loss = valid_loss
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
             torch.save(model.state_dict(), 'best-model.pt')
         
         logging.info("EPOCH #%d" % epoch)
-        logging.info('\tTrain Loss: %.2f | Train Acc: {train_acc*100:.2f}%' % train_loss)
-        logging.info('\t Val. Loss: %.2f |  Val. Acc: {valid_acc*100:.2f}%')
+        logging.info('\tTrain Loss: %.02f | Train Acc: %.02f' % (train_loss, train_acc))
+        logging.info('\t Val. Loss: %.02f |  Val. Acc: %.02f' % (val_loss, valid_acc))
     
     
     test_loss, test_acc = evaluate(model, test_iterator, criterion, tag_pad_idx)
-    logging.info(f'\Test Loss: {test_loss:.2f} | Test Acc: {test_acc*100:.2f}%')
+    logging.info('Test Loss: %.02f |  Val. Acc: %.02f' % (test_loss, test_acc))
     
     logging.info("TASK 3.3: Tag sample sentences")
     for sentence in ["The old man the boat",

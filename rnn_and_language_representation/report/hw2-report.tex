@@ -121,6 +121,13 @@ Manually find weights and biases for the univariate LSTM defined above such that
 \emph{Hints: Some of the weights will likely be zero. Others may be large. Scale matters, larger weights will saturate the activation functions. Also note that \texttt{A XOR B} can be written as \texttt{(A OR B) AND (A NAND B)}. Work backwards and try to find where this sort of two-term structure could be implemented.} 
 \end{task}
 
+$
+w_{ix}=1,  w_{ih}=1,  b_{i}=11,  \\
+w_{fx}=0,  w_{fh}=0,  b_{f}=-12, \\
+w_{ox}=12, w_{oh}=12, b_{o}=-6,  \\
+w_{gx}=-6, w_{gh}=-8, b_{g}=12   \\
+$
+
 %==============================================================================%
 \newpage
 \begin{task}{2.1} 
@@ -270,7 +277,7 @@ The first step for any machine learning problem is to get familiar with the data
 
 The texts in the data seem to cover from and wide range of topics from macro ones such as economics and politics to daily life stuff like service complaints. For text preprocessing, lower casing might be appropriate because it does change the grammatical meaning of words, but helps eliminate duplicates. On the other hand, removing stopwords might lose some valuable information about the surrounding words. For example, 'the' and 'a' are usually followed by a noun phrase. Likewise, removing punctuations is not a good idea. Punctuations informs the model about the start and end of sentences, which are important for guessing grammatical roles of words. Last, emojis can be useful for the model too. For example, in the sentence "I \heart\ this song so much.", \heart\ is used as a verb. If the model could recognize \heart\ as a verb, the predictions for the following words would be more certain.
 
-As shown by Figure \ref{fig:tag-dist}, the distribution of tags is not uniform. The data set has 34781 nouns but only 6707 interjection. If we guess every word as a noun, we get an accuracy of 17\%.
+As shown by Figure \ref{fig:tag-dist}, the distribution of tags is not uniform. The data set has 34781 nouns but only 599 symbols. If we guess every word as a noun, we get an accuracy of 17\%.
 
 \begin{figure}[H]
     \centering
@@ -283,9 +290,9 @@ As shown by Figure \ref{fig:tag-dist}, the distribution of tags is not uniform. 
 %==============================================================================%
 \newpage
 \begin{task}{3.2} 
-Create a file \texttt{driver\_udpos.py} that implements and trains a bidirectional LSTM model on this dataset with cross entropy loss. The BiLSTM should predict an output distribution over the POS tags for each token in a sentence. In your written report, produce a graph of training and validation loss over the course of training. Your model should be able to achieve $>70\%$ per-word accuracy fairly easily. \\[5pt] 
+Create a file \texttt{driver\_udpos.py} that implements and trains a bidirectional LSTM model on this dataset with cross entropy loss. The BiLSTM should predict an output distribution over the POS tags for each token in a sentence. In your written report, produce a graph of training and validation loss over the course of training. Your model should be able to achieve $>70\%$ per-word accuracy fairly easily.
 
-To achieve stronger performance, you will likely need to tune hyper-parameters or model architecture to achieve lower validation loss. Using pretrained word vectors will likely help as well. You may also wish to employ early-stopping -- regularly saving the weights of your model during training and then selecting the saved model with the lowest validation loss. In your report, describe any impactful decisions during this process. Importantly -- \texttt{DO NOT EVALUATE ON TEST DURING THIS TUNING PROCESS}.\\[5pt]
+To achieve stronger performance, you will likely need to tune hyper-parameters or model architecture to achieve lower validation loss. Using pretrained word vectors will likely help as well. You may also wish to employ early-stopping -- regularly saving the weights of your model during training and then selecting the saved model with the lowest validation loss. In your report, describe any impactful decisions during this process. Importantly -- \texttt{DO NOT EVALUATE ON TEST DURING THIS TUNING PROCESS}.
 
 Once you are done finetuning, evaluate on the test split of the data and report the per-word accuracy. 
 \end{task}

@@ -28,7 +28,7 @@ random.seed(42)
 torch.manual_seed(42)
 
 # Determine if a GPU is available for use, define as global variable
-dev = torch.device("mps") if torch.cuda.is_available() else torch.device("cpu")
+dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 # dev = torch.device("mps") if torch.has_mps else torch.device("cpu")
 
  
@@ -45,11 +45,11 @@ def main():
     maximum_training_sequence_length = 5
     train = Parity(split='train', max_length=maximum_training_sequence_length)
     train_loader = DataLoader(train, batch_size=100, shuffle=True, collate_fn=pad_collate)
-    train_model(model, train_loader)
+    train_model(model, train_loader, lr=0.0005)
 
 
-    # logging.info("Running generalization experiment")
-    # runParityExperiment(model,maximum_training_sequence_length)
+    logging.info("Running generalization experiment")
+    runParityExperiment(model,maximum_training_sequence_length)
 
 
 
@@ -196,6 +196,10 @@ def train_model(model, train_loader, epochs=2000, lr=0.001):
     # (tends to speed convergence but often worse than a well tuned SGD schedule)
     optimizer = torch.optim.Adam(parameters, lr=lr, weight_decay=0.00001)
 
+    # Tracking data
+    train_losses = {}
+    train_acc = {}
+
     # Main training loop over the number of epochs
     for i in range(epochs):
         
@@ -231,7 +235,12 @@ def train_model(model, train_loader, epochs=2000, lr=0.001):
             sum_loss += loss.item()*y.shape[0]
             total += y.shape[0]
         if i % 10 == 0:
-            logging.info("epoch %d train loss %.3f, train acc %.3f" % (i, sum_loss/total, correct/total))#, val_loss, val_acc))
+            # logging.info("epoch %d train loss %.3f, train acc %.3f" % (i, sum_loss/total, correct/total))#, val_loss, val_acc))
+            
+            train_losses[i] = float(sum_loss/total)
+            train_acc[i] = float(correct/total)
+            
+    return train_losses, train_acc
         
 
 def validation_metrics (model, loader):
