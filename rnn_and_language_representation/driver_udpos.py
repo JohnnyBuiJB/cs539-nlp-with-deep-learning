@@ -1,3 +1,5 @@
+# Adapted from https://github.com/bentrevett/pytorch-pos-tagging/tree/torchtext08
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
