@@ -123,16 +123,12 @@ def beamsearch(model, text_field, beams=5, prompt="", max_len=50):
         
         log_probs = torch.log(softmax(torch.squeeze(out[-1]), 0))
         combine_top_words = torch.topk(log_probs, beams)
-        # all_log_probs = combine_top_words.values.repeat([beams,1])
         
         h = h.repeat([beams, 1, 1, 1])
         c = c.repeat([beams, 1, 1, 1])
         
-        # w = torch.zeros([beams]).to(dev)
-        # w = prompt_tokens[-1].repeat([beams, 1])
         w = combine_top_words.indices
         
-        # text = prompt_tokens.repeat([beams,1])
         text = prompt_tokens.view([1,-1]).repeat([beams,1])
         text = text.type(torch.IntTensor)
         text = torch.cat((text, w.view([-1,1])), 1)
@@ -140,12 +136,9 @@ def beamsearch(model, text_field, beams=5, prompt="", max_len=50):
         sample_len = max_len - len(prompt_tokens) - 1
         
         # Init k prev log prob as 0 because log(1) = 0.
-        # prev_log_prob = torch.zeros([beams])
         prev_log_prob = combine_top_words.values
         
         for _ in range(0, sample_len):
-            # all_log_probs = torch.zeros([beams, text_field.vocab.__len__()])
-            
             for i in range(0, beams):
                 # out, h[i], c[i] = model(w[i], h[i], c[i])
                 out, h[i], c[i] = model(w[i].view([1,-1]), h[i], c[i])
@@ -153,23 +146,11 @@ def beamsearch(model, text_field, beams=5, prompt="", max_len=50):
                 # accumulate log prob (add)
                 log_probs = torch.log(softmax(torch.squeeze(out), 0))
                 top_words_per_beam = torch.topk(log_probs, beams)
-                # log_probs += prev_log_prob[i]
                 
-                # combine Vxk, then find topk log prob
-                # top_log_probs = torch.topk(log_probs, beams)
-                
-                # all_log_probs = torch.cat(all_log_probs, log_probs, 0)
-                # all_log_probs = torch.cat((all_log_probs, log_probs), 1)
-                # all_log_probs[i] = log_probs
-                # all_log_probs[i] = top_words_per_beam.values
                 all_top_word_values[i] = prev_log_prob[i] + top_words_per_beam.values
                 all_top_word_indices[i] = top_words_per_beam.indices
                 
-                # all_top_word_values = torch.cat([all_top_word_values, top_words_per_beam.values])
-                # all_top_word_indices = torch.cat([all_top_word_indices, top_words_per_beam.indices])
-                
             # Pick the top-k log prob
-            # top_k = torch.topk(all_log_probs, beams)
             flatten_all_top_word_values = all_top_word_values.view([-1])
             flatten_all_top_word_indices = all_top_word_indices.view([-1])
             
@@ -179,58 +160,14 @@ def beamsearch(model, text_field, beams=5, prompt="", max_len=50):
             
             history_indices = top_words.indices / beams
             
-            # new_text = torch.Tensor([])
-            # new_text = torch.cat((text, torch.zeros([beams, 1], dtype=int)), 1)
             
+            # Update top texts
             new_text = text[history_indices.type(torch.LongTensor)]
-            # text[history_indices.type(torch.LongTensor)]
             w = flatten_all_top_word_indices[top_words.indices]
             new_text = torch.cat((new_text, w.view([-1,1])), 1)
-            
-            # for i in range(0, beams):
-            #     # history = text[int(history_indices[i])]
-            #     text[i][-1] = int(flatten_all_top_word_indices[top_words.indices[i]].view([1]))
-                
-                # text[i][-1] = torch.cat((history, new_word), 0)
-                
-                # if i == 0:
-                #     text[i][-1] = torch.cat((history, new_word), 0)
-                # else:
-                #     new_history = torch.cat((history, new_word), 0)
-                #     new_text = torch.cat((new_text.view([1,-1]), new_history.view([1,-1])), 0) 
-                
             text = new_text
             
-            # For debug. TODO: run it in debug mode and check when it goes wrong
-            # _, best_word_idx = torch.topk(top_words.values, 1)
-            # best_text_idx = int(top_words.indices[best_word_idx] / beams)
-            # print(text[:,-10:])
-            # print(reverseNumeralize(text[best_text_idx], text_field))
-            
-            
-            # dist = torch.squeeze(softmax(out, 1))
-            
-            # if k != 0:
-            #     top_k = torch.topk(dist, k)
-            #     sum_top_k = torch.sum(top_k.values)
-            #     dist = torch.zeros_like(dist)
-            #     dist[top_k.indices] = top_k.values
-            #     dist = torch.div(dist, sum_top_k)
-            # elif p != 1:
-            #     sorted_dist = torch.sort(dist, descending=True)
-            #     prefix_sum = torch.cumsum(sorted_dist.values, 0)
-            #     cut_off_idx = (prefix_sum >= p).nonzero(as_tuple=True)[0][0]
-                
-            #     # Zero out words not in the min-p set
-            #     dist[sorted_dist.indices[cut_off_idx+1 :]] = 0
-                
-            #     sum_top_p = prefix_sum[cut_off_idx]
-                
-            #     dist = torch.div(dist, sum_top_p)
-            
-            # w = torch.distributions.Categorical(dist).sample().resize(1,1)
-            # prompt_tokens = torch.cat((prompt_tokens, w), 0)
-            
+        # Most likely text
         _, best_word_idx = torch.topk(top_words.values, 1)
         best_text_idx = int(top_words.indices[best_word_idx] / beams)
         
