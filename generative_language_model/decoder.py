@@ -84,22 +84,18 @@ def main():
     # print("\n----------- Top-p Sampling 1 -----------")
     # print(sample(lm, text_field, prompt=p, p=1, max_len=mlen))
     
+    
     torch.manual_seed(seed); np.random.seed(seed)
     print("\n----------- Beam Search B=1 -----------")
-    print(beamsearch(lm, text_field, prompt=p, beams=2, max_len=mlen))
-    
-    
-    # torch.manual_seed(seed); np.random.seed(seed)
-    # print("\n----------- Beam Search B=1 -----------")
-    # print(beamsearch(lm, text_field, prompt=p, beams=1, max_len=mlen))
+    print(beamsearch(lm, text_field, prompt=p, beams=1, max_len=mlen))
 
-    # torch.manual_seed(seed); np.random.seed(seed)
-    # print("\n----------- Beam Search B=10 -----------")
-    # print(beamsearch(lm, text_field, prompt=p, beams=10, max_len=mlen))
+    torch.manual_seed(seed); np.random.seed(seed)
+    print("\n----------- Beam Search B=10 -----------")
+    print(beamsearch(lm, text_field, prompt=p, beams=10, max_len=mlen))
 
-    # torch.manual_seed(seed); np.random.seed(seed)
-    # print("\n----------- Beam Search B=50 -----------")
-    # print(beamsearch(lm, text_field, prompt=p, beams=50, max_len=mlen))
+    torch.manual_seed(seed); np.random.seed(seed)
+    print("\n----------- Beam Search B=50 -----------")
+    print(beamsearch(lm, text_field, prompt=p, beams=50, max_len=mlen))
 
     print()
 
@@ -139,8 +135,9 @@ def beamsearch(model, text_field, beams=5, prompt="", max_len=50):
         # text = prompt_tokens.repeat([beams,1])
         text = prompt_tokens.view([1,-1]).repeat([beams,1])
         text = text.type(torch.IntTensor)
+        text = torch.cat((text, w.view([-1,1])), 1)
 
-        sample_len = max_len - len(prompt_tokens)
+        sample_len = max_len - len(prompt_tokens) - 1
         
         # Init k prev log prob as 0 because log(1) = 0.
         # prev_log_prob = torch.zeros([beams])
@@ -187,8 +184,8 @@ def beamsearch(model, text_field, beams=5, prompt="", max_len=50):
             
             new_text = text[history_indices.type(torch.LongTensor)]
             # text[history_indices.type(torch.LongTensor)]
-            new_words = flatten_all_top_word_indices[top_words.indices]
-            new_text = torch.cat((new_text, new_words.view([-1,1])), 1)
+            w = flatten_all_top_word_indices[top_words.indices]
+            new_text = torch.cat((new_text, w.view([-1,1])), 1)
             
             # for i in range(0, beams):
             #     # history = text[int(history_indices[i])]
@@ -205,9 +202,10 @@ def beamsearch(model, text_field, beams=5, prompt="", max_len=50):
             text = new_text
             
             # For debug. TODO: run it in debug mode and check when it goes wrong
-            _, best_text_idx = torch.topk(top_words.values, 1)
-            print(text[:,-10:])
-            print(reverseNumeralize(text[top_words.indices[int(best_text_idx)]], text_field))
+            # _, best_word_idx = torch.topk(top_words.values, 1)
+            # best_text_idx = int(top_words.indices[best_word_idx] / beams)
+            # print(text[:,-10:])
+            # print(reverseNumeralize(text[best_text_idx], text_field))
             
             
             # dist = torch.squeeze(softmax(out, 1))
@@ -233,9 +231,10 @@ def beamsearch(model, text_field, beams=5, prompt="", max_len=50):
             # w = torch.distributions.Categorical(dist).sample().resize(1,1)
             # prompt_tokens = torch.cat((prompt_tokens, w), 0)
             
-        _, best_text_idx = torch.topk(top_words.values, 1)
+        _, best_word_idx = torch.topk(top_words.values, 1)
+        best_text_idx = int(top_words.indices[best_word_idx] / beams)
         
-    return reverseNumeralize(text[top_words.indices[int(best_text_idx)]], text_field)
+    return reverseNumeralize(text[best_text_idx], text_field)
 
 ############################################################################################
 # TASK 1.2
