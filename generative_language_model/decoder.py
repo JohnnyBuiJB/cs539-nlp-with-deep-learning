@@ -52,37 +52,37 @@ def main():
     seed = 42
     mlen = 150
 
-    # torch.manual_seed(seed); np.random.seed(seed)
-    # print("\n----------- Vanilla Sampling -----------")
-    # print(sample(lm, text_field, prompt=p, max_len=mlen))
+    torch.manual_seed(seed); np.random.seed(seed)
+    print("\n----------- Vanilla Sampling -----------")
+    print(sample(lm, text_field, prompt=p, max_len=mlen))
     
-    # torch.manual_seed(seed); np.random.seed(seed)
-    # print("\n------- Temp-Scaled Sampling 0.0001 -------")
-    # print(sample(lm, text_field, prompt=p, temp=0.0001, max_len=mlen))
+    torch.manual_seed(seed); np.random.seed(seed)
+    print("\n------- Temp-Scaled Sampling 0.0001 -------")
+    print(sample(lm, text_field, prompt=p, temp=0.0001, max_len=mlen))
     
-    # torch.manual_seed(seed); np.random.seed(seed)
-    # print("\n------- Temp-Scaled Sampling 100 --------")
-    # print(sample(lm, text_field, prompt=p, temp=100, max_len=mlen))
+    torch.manual_seed(seed); np.random.seed(seed)
+    print("\n------- Temp-Scaled Sampling 100 --------")
+    print(sample(lm, text_field, prompt=p, temp=100, max_len=mlen))
     
-    # torch.manual_seed(seed); np.random.seed(seed)
-    # print("\n----------- Top-k Sampling 1 -----------")
-    # print(sample(lm, text_field, prompt=p, k=1, max_len=mlen))
+    torch.manual_seed(seed); np.random.seed(seed)
+    print("\n----------- Top-k Sampling 1 -----------")
+    print(sample(lm, text_field, prompt=p, k=1, max_len=mlen))
     
-    # torch.manual_seed(seed); np.random.seed(seed)
-    # print("\n----------- Top-k Sampling 20 -----------")
-    # print(sample(lm, text_field, prompt=p, k=20, max_len=mlen))
+    torch.manual_seed(seed); np.random.seed(seed)
+    print("\n----------- Top-k Sampling 20 -----------")
+    print(sample(lm, text_field, prompt=p, k=20, max_len=mlen))
     
-    # torch.manual_seed(seed); np.random.seed(seed)
-    # print("\n----------- Top-p Sampling 0.001 -----------")
-    # print(sample(lm, text_field, prompt=p, p=0.001, max_len=mlen))
+    torch.manual_seed(seed); np.random.seed(seed)
+    print("\n----------- Top-p Sampling 0.001 -----------")
+    print(sample(lm, text_field, prompt=p, p=0.001, max_len=mlen))
 
-    # torch.manual_seed(seed); np.random.seed(seed)
-    # print("\n----------- Top-p Sampling 0.75 -----------")
-    # print(sample(lm, text_field, prompt=p, p=0.75, max_len=mlen))
+    torch.manual_seed(seed); np.random.seed(seed)
+    print("\n----------- Top-p Sampling 0.75 -----------")
+    print(sample(lm, text_field, prompt=p, p=0.75, max_len=mlen))
 
-    # torch.manual_seed(seed); np.random.seed(seed)
-    # print("\n----------- Top-p Sampling 1 -----------")
-    # print(sample(lm, text_field, prompt=p, p=1, max_len=mlen))
+    torch.manual_seed(seed); np.random.seed(seed)
+    print("\n----------- Top-p Sampling 1 -----------")
+    print(sample(lm, text_field, prompt=p, p=1, max_len=mlen))
     
     
     torch.manual_seed(seed); np.random.seed(seed)
@@ -121,68 +121,53 @@ def beamsearch(model, text_field, beams=5, prompt="", max_len=50):
         
         # Process the prefix
         out, h, c = model(prompt_tokens, h, c)
-        
         log_probs = torch.log(softmax(torch.squeeze(out[-1]), 0))
         combine_top_words = torch.topk(log_probs, beams)
         
-        h = prev_h = h.repeat([beams, 1, 1, 1])
-        c = prev_c = c.repeat([beams, 1, 1, 1])
-        
+        h = frontier_h = h.repeat([beams, 1, 1, 1])
+        c = frontier_c = c.repeat([beams, 1, 1, 1])
         w = combine_top_words.indices
         
-        text = prompt_tokens.view([1,-1]).repeat([beams,1])
-        text = text.type(torch.IntTensor).to(dev)
-        text = torch.cat((text, w.view([-1,1])), 1)
+        decoded_string = prompt_tokens.view([1,-1]).repeat([beams,1])
+        decoded_string = decoded_string.type(torch.IntTensor).to(dev)
+        decoded_string = torch.cat((decoded_string, w.view([-1,1])), 1)
 
-        sample_len = max_len - len(prompt_tokens) - 1
+        # Init k frontier log prob as 0 because log(1) = 0.
+        frontier_log_prob = combine_top_words.values
         
-        # Init k prev log prob as 0 because log(1) = 0.
-        prev_log_prob = combine_top_words.values
-        
-        for _ in range(0, sample_len):
+        for _ in range(0, max_len - len(prompt_tokens) - 1):
             for i in range(0, beams):
-                # out, h[i], c[i] = model(w[i], h[i], c[i])
-                out, h[i], c[i] = model(w[i].view([1,-1]), prev_h[i], prev_c[i])
+                out, h[i], c[i] = model(w[i].view([1,-1]), frontier_h[i], frontier_c[i])
+                log_probs = torch.nn.functional.log_softmax(torch.squeeze(out), 0)
                 
-                # accumulate log prob (add)
-                log_probs = torch.log(softmax(torch.squeeze(out), 0))
                 top_words_per_beam = torch.topk(log_probs, beams)
                 
-                all_top_word_values[i] = prev_log_prob[i] + top_words_per_beam.values
+                # accumulate log prob
+                all_top_word_values[i] = frontier_log_prob[i] + top_words_per_beam.values
+                
                 all_top_word_indices[i] = top_words_per_beam.indices
                 
             # Pick the top-k log prob
             flatten_all_top_word_values = all_top_word_values.view([-1])
             flatten_all_top_word_indices = all_top_word_indices.view([-1])
-            
             top_words = torch.topk(flatten_all_top_word_values, beams)
             
-            prev_log_prob = top_words.values
+            # Update frontier
+            frontier_log_prob = top_words.values
+            frontier_indices = (top_words.indices / beams).type(torch.LongTensor)
+            frontier_h = h[frontier_indices]
+            frontier_c = c[frontier_indices]
             
-            history_indices = (top_words.indices / beams).type(torch.LongTensor)
-            
-            # Update network states for top words
-            prev_h = h[history_indices]
-            prev_c = c[history_indices]
-            
-            # Update top texts
-            new_text = text[history_indices]
+            new_text = decoded_string[frontier_indices]
             w = flatten_all_top_word_indices[top_words.indices]
             new_text = torch.cat((new_text, w.view([-1,1])), 1)
-            text = new_text
-            
-            # # Debug
-            # print(text)
-            
-            # _, best_word_idx = torch.topk(top_words.values, 1)
-            # best_text_idx = int(top_words.indices[best_word_idx] / beams)
-            # print(reverseNumeralize(text[best_text_idx], text_field))
+            decoded_string = new_text
             
         # Most likely text
         _, best_word_idx = torch.topk(top_words.values, 1)
         best_text_idx = int(top_words.indices[best_word_idx] / beams)
         
-    return reverseNumeralize(text[best_text_idx], text_field)
+    return reverseNumeralize(decoded_string[best_text_idx], text_field)
 
 ############################################################################################
 # TASK 1.2
