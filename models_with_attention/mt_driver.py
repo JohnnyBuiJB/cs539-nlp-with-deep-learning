@@ -35,7 +35,7 @@ import logging
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
-    datefmt='%Y-%m-%d %H:%M:%S')
+    datefmt='%Y-%m-%d %H:%M:%s')
 
 
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -158,19 +158,41 @@ class SingleQueryScaledDotProductAttention(nn.Module):
     # kq_dim  is the  dimension  of keys  and  values. Linear  layers  should  be usedto  project  inputs  to these  dimensions.
     def __init__(self, enc_hid_dim, dec_hid_dim, kq_dim=512):
         super().__init__()
-        
+        self.fc = nn.Linear(enc_hid_dim * 2, dec_hid_dim)
 
         
 
     #hidden  is h_t^{d} from Eq. (11)  and has  dim => [batch_size , dec_hid_dim]
     #encoder_outputs  is the  word  representations  from Eq. (6)
     # and has dim => [src_len , batch_size , enc_hid_dim * 2]
-    def forward(self, hidden, encoder_outputs):      
-    
+    def forward(self, hidden, encoder_outputs):
+        # score = torch.tensordot(hidden, self.fc(encoder_outputs))   # dec_hid_dim = enc_hid_dim = 512
+        s = encoder_outputs.shape[0]    # source length
+        b = encoder_outputs.shape[1]    # batch size
+        eh = encoder_outputs.shape[2]    # encoder hidden layer size
+        dh = hidden.shape[1]
+        
+        x = self.fc(encoder_outputs).view([b,s,dh])    # [b,s,dh] (source length, batch size, hidden dim)
+        y = hidden.view([b,dh,1])    # [b,dh,1]
+        # score = torch.tensordot(x, y, dims=([1,2], [1,2]))  # [b,s]
+        score = torch.bmm(x, y)     # [b,s,1]
+        score = torch.div(score, torch.sqrt(torch.Tensor([dh])))
+        
+        alpha = torch.softmax(score, 0) # [b,s,1]
+        alpha = alpha.view([b, 1, s])
+        
+        # attended_val = torch.zeros((encoder_outputs.shape[1], encoder_outputs.shape[2]))     # [b,H]
+        # for i in range(0, encoder_outputs.shape[0]):
+        #     attended_val[i] = alpha[i] * encoder_outputs[i]
     
 
-        assert attended_val.shape == (hidden.shape[0], encoder_outputs.shape[2])
-        assert alpha.shape == (hidden.shape[0], encoder_outputs.shape[0])
+        enc_h = encoder_outputs.view((b, s, eh))
+        attended_val = torch.bmm(alpha, enc_h).view([b,eh])
+        
+        alpha = alpha.view([b,s])
+
+        assert attended_val.shape == (hidden.shape[0], encoder_outputs.shape[2])    # [b,eh]
+        assert alpha.shape == (hidden.shape[0], encoder_outputs.shape[0])   # [b,s]
         
         return attended_val, alpha
 
