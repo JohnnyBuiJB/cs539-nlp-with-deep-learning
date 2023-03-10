@@ -193,21 +193,50 @@ Implement $\mbox{Attn}(\cdot)$ in equation (11) as single-query scaled dot-produ
 \noindent Train this model by executing  \texttt{python mt\_driver.py}. Record the perplexity and BLEU score on the test set. These are automatically generated in the script and printed after training.
 \end{task}
 
+The model produced a test loss of 1.854, perplexity of 6.384, and BLEU of 33.76.
 
 %==============================================================================%
+\newpage
 \begin{task}{2.2} 
 \textbf{Attention Diagrams} [1pts]
 
 Search through the attention diagrams produced by your model. Include a few examples in your report and characterize common patterns you observe.Note that German is (mostly) a Subject-Object-Verb language so you may find attention patterns that indicate inversion of word order when translating to Subject-Verb-Object English as in the 2nd example above.
 \end{task}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{281_translation.png} \par
+    \caption{A translation example}
+    \label{fig:trans-ex}
+\end{figure}
+
+Figure \ref{fig:trans-ex} shows the inversion of word order in English-German translation. In particular, the verb "fangen" follows object "ball" in German, where as the verb "catch" precedes object "ball" in English.
+
 %==============================================================================%
+\newpage
 \begin{task}{2.3} 
 \textbf{Comparison} [3pts]
 
 Train and evaluate models with the \texttt{Dummy} and \texttt{MeanPool} `attention' mechanisms. Report mean and variance over three runs for these baselines and your implementation of scaled dot-product attention. Discuss the observed trends.
 \end{task}
 
+\begin{center}
+    \begin{tabular}{ |c|c|c|c|c| } 
+    \hline
+    & PPL mean & PPL variance & BLEU mean & BLEU variance \\
+    \hline
+    dummy & 10.874 & 0.012 & 19.107 & 0.005 \\
+    \hline
+    mean & 9.021 & 0.005 & 23.22 & 0.082 \\
+    \hline
+    sdp & 6.421 & 0.007 & 34.413 & 0.429 \\
+    \hline
+    \end{tabular}
+    
+    Table 1: comparison of different attention mechanisms
+\end{center}
+
+First, the scaled dot-product attention produces models with the highest BLEU score and lowest perplexity. Second, the perplexity variance between mechanisms are similar, whereas sdp's BLEU variance is significantly larger than that of the dummy and mean method.
 %==============================================================================%
 \begin{task}{2} 
 \textbf{EC Beam Search and BLEU} [2pts]
